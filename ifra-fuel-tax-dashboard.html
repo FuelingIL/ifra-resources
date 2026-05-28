@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Illinois Motor Fuel Tax Dashboard — IFRA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-dark:   #2B7A3A;
+    --green-mid:    #3D9E50;
+    --green-light:  #6DC47E;
+    --green-pale:   #E8F5EB;
+    --black:        #111111;
+    --gray-dark:    #2C2C2C;
+    --gray-mid:     #555555;
+    --gray-light:   #AAAAAA;
+    --gray-pale:    #F4F4F4;
+    --white:        #FFFFFF;
+    --border:       #D4D4D4;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body:    'Barlow', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--white);
+    color: var(--black);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .ifra-header {
+    background: var(--black);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 4px solid var(--green-mid);
+  }
+  .ifra-logo-ring {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid var(--green-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .ifra-logo-ring svg { width: 32px; height: 32px; }
+  .ifra-header-text h1 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .ifra-header-text p {
+    font-size: 12px;
+    color: var(--green-light);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  /* ── Wrapper ── */
+  .dashboard {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+  }
+
+  /* ── Metric cards ── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .metric-card {
+    background: var(--black);
+    border-radius: 6px;
+    padding: 18px 16px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--green-mid);
+  }
+  .metric-card .m-label {
+    font-size: 11px;
+    color: var(--green-light);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .metric-card .m-value {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+  }
+  .metric-card .m-sub {
+    font-size: 11px;
+    color: var(--gray-light);
+    margin-top: 4px;
+  }
+
+  /* ── Tabs ── */
+  .tabs-bar {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 24px;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--green-dark); }
+  .tab-btn.active { color: var(--green-dark); border-bottom-color: var(--green-mid); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Section label ── */
+  .section-label {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    margin-bottom: 16px;
+  }
+
+  /* ── Bar charts ── */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 9px;
+  }
+  .bar-label {
+    font-size: 13px;
+    width: 128px;
+    text-align: right;
+    color: var(--gray-mid);
+    flex-shrink: 0;
+    font-weight: 400;
+  }
+  .bar-label.highlight {
+    color: var(--black);
+    font-weight: 600;
+  }
+  .bar-wrap {
+    flex: 1;
+    background: var(--gray-pale);
+    border-radius: 3px;
+    height: 30px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: width 0.7s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-fill.il   { background: var(--black);     color: var(--green-light); }
+  .bar-fill.other { background: var(--green-mid); color: var(--white); }
+  .bar-fill.avg  { background: var(--green-pale); color: var(--green-dark); border: 1px solid var(--green-mid); }
+
+  /* ── Stack chart ── */
+  .stack-wrap {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 44px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .stack-seg {
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: filter 0.15s;
+  }
+  .stack-seg:hover { filter: brightness(1.12); }
+  .stack-seg .tip {
+    display: none;
+    position: absolute;
+    bottom: 52px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--black);
+    color: var(--white);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .stack-seg:hover .tip { display: block; }
+  .stack-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+  }
+  .leg-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--gray-mid);
+  }
+  .leg-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .leg-val { font-weight: 600; color: var(--black); }
+
+  /* ── Biofuel table ── */
+  .bio-table { width: 100%; border-collapse: collapse; }
+  .bio-table th {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-mid);
+    padding: 0 12px 10px 0;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+  .bio-table td {
+    padding: 12px 12px 12px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .bio-table td:first-child { font-weight: 600; color: var(--black); }
+  .bio-table td:not(:first-child) { color: var(--gray-dark); }
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .badge-green { background: var(--green-pale); color: var(--green-dark); }
+  .badge-amber { background: #FEF3CD; color: #7B5700; }
+
+  .info-box {
+    background: var(--green-pale);
+    border-left: 3px solid var(--green-mid);
+    border-radius: 0 4px 4px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--gray-dark);
+    margin-top: 20px;
+  }
+  .info-box strong { color: var(--green-dark); }
+
+  /* ── Note ── */
+  .chart-note {
+    font-size: 11px;
+    color: var(--gray-light);
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Footer ── */
+  .ifra-footer {
+    background: var(--black);
+    text-align: center;
+    padding: 18px 24px;
+    font-size: 11px;
+    color: var(--gray-mid);
+    letter-spacing: 0.04em;
+    margin-top: 48px;
+  }
+  .ifra-footer span { color: var(--green-mid); }
+</style>
+</head>
+<body>
+
+<header class="ifra-header">
+  <div class="ifra-logo-ring">
+    <!-- Fuel pump icon -->
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="4" y="8" width="14" height="20" rx="2" stroke="#3D9E50" stroke-width="2"/>
+      <rect x="7" y="11" width="8" height="6" rx="1" fill="#3D9E50"/>
+      <path d="M18 12h3a2 2 0 012 2v4a2 2 0 002 2v0" stroke="#3D9E50" stroke-width="2" stroke-linecap="round"/>
+      <path d="M8 28v-4" stroke="#3D9E50" stroke-width="2" stroke-linecap="round"/>
+      <path d="M14 28v-4" stroke="#3D9E50" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="ifra-header-text">
+    <h1>Illinois Motor Fuel Tax Dashboard</h1>
+    <p>Illinois Fuel &amp; Retail Association · Rates effective July 2025 / January 2026</p>
+  </div>
+</header>
+
+<main class="dashboard">
+
+  <!-- Metric Cards -->
+  <div class="metrics-grid" role="region" aria-label="Key figures">
+    <div class="metric-card">
+      <p class="m-label">IL State Tax — Gasoline</p>
+      <p class="m-value">66.4¢</p>
+      <p class="m-sub">per gallon</p>
+    </div>
+    <div class="metric-card">
+      <p class="m-label">IL State Tax — Diesel</p>
+      <p class="m-value">73.9¢</p>
+      <p class="m-sub">per gallon</p>
+    </div>
+    <div class="metric-card">
+      <p class="m-label">All-in Chicago tax burden</p>
+      <p class="m-value">$1.094</p>
+      <p class="m-sub">fed + state + county + city</p>
+    </div>
+    <div class="metric-card">
+      <p class="m-label">IL gallons sold (2024)</p>
+      <p class="m-value">5.8B</p>
+      <p class="m-sub">74% gasoline · 26% diesel</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar" role="tablist">
+    <button class="tab-btn active" role="tab" aria-selected="true"  onclick="switchTab('midwest', this)">Midwest comparison</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('stack',   this)">Tax breakdown</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('biofuel', this)">Biofuel incentives</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" onclick="switchTab('national',this)">National ranking</button>
+  </div>
+
+  <!-- Tab: Midwest -->
+  <div id="tab-midwest" class="tab-panel active" role="tabpanel">
+    <p class="section-label">State gasoline tax — total state rate (¢/gal), Midwest states</p>
+    <div id="mw-bars"></div>
+    <p class="chart-note">Includes all state excise + fees + prepaid sales tax components. Federal excise of 18.4¢/gal applies equally to all states and is not shown here.</p>
+  </div>
+
+  <!-- Tab: Stack -->
+  <div id="tab-stack" class="tab-panel" role="tabpanel">
+    <p class="section-label">What's inside every Chicago gallon of gasoline?</p>
+    <p style="font-size:13px; color:var(--gray-mid); margin-bottom:16px;">Based on a $3.00 base price. Hover each bar segment to see the component detail.</p>
+    <div class="stack-wrap" id="stack-chart" role="img" aria-label="Stacked bar showing tax components totaling $1.094 per gallon in Chicago"></div>
+    <p style="font-size:13px; font-weight:600; margin-bottom:12px;">Total tax burden: <span style="color:var(--green-dark);">$1.094 per gallon</span></p>
+    <div class="stack-legend" id="stack-legend"></div>
+    <p class="chart-note" style="margin-top:16px;">Chicago represents the highest total tax burden in Illinois due to stacked city, county, and state levies.</p>
+  </div>
+
+  <!-- Tab: Biofuel -->
+  <div id="tab-biofuel" class="tab-panel" role="tabpanel">
+    <p class="section-label">Illinois biofuel sales tax incentives</p>
+    <table class="bio-table">
+      <thead>
+        <tr>
+          <th>Blend</th>
+          <th>Tax treatment</th>
+          <th>Expires</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>E15 (gasohol)</td>
+          <td>6.25% sales tax applies to only 90% of proceeds — effective ~5.6% rate</td>
+          <td><span class="badge badge-amber">Dec 2028</span></td>
+        </tr>
+        <tr>
+          <td>E20–E50 (mid-range)</td>
+          <td>6.25% applies to only 80% of proceeds — effective ~5% rate</td>
+          <td><span class="badge badge-amber">Dec 2028</span></td>
+        </tr>
+        <tr>
+          <td>E51–E83</td>
+          <td>Fully exempt from sales and use tax</td>
+          <td><span class="badge badge-amber">Dec 2028</span></td>
+        </tr>
+        <tr>
+          <td>B10+ biodiesel (winter)</td>
+          <td>Exempt Dec 1 – Mar 31 each year</td>
+          <td><span class="badge badge-green">Nov 2030</span></td>
+        </tr>
+        <tr>
+          <td>B13+ biodiesel (Apr–Nov)</td>
+          <td>Exempt Apr–Nov 2024. Threshold rises: B16 in 2025, B19 from April 2026 onward</td>
+          <td><span class="badge badge-green">Nov 2030</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Prepaid sales tax rates (Jan–Jun 2026):</strong> 13¢/gal for mid-range ethanol blends · 15¢/gal for E15 · 17¢/gal for standard motor fuels
+    </div>
+  </div>
+
+  <!-- Tab: National -->
+  <div id="tab-national" class="tab-panel" role="tabpanel">
+    <p class="section-label">National ranking — top 10 highest state gasoline tax rates (¢/gal)</p>
+    <div id="nat-bars"></div>
+    <p class="chart-note">Illinois ranks #2 nationally, behind California. The national average is 33.3¢/gal — Illinois is nearly double that. Among Midwest states, Illinois is the highest by a margin of more than 12¢/gal over the next closest state.</p>
+  </div>
+
+</main>
+
+<footer class="ifra-footer">
+  <span>Illinois Fuel &amp; Retail Association</span> &nbsp;·&nbsp; Source: IFRA / EIA / IRS · Rates as of January 2026 &nbsp;·&nbsp; For informational purposes only
+</footer>
+
+<script>
+  /* ── Midwest bars ── */
+  const mwData = [
+    { state: 'Illinois',  gas: 66.4, il: true },
+    { state: 'Indiana',   gas: 53.5 },
+    { state: 'Michigan',  gas: 53.4 },
+    { state: 'Ohio',      gas: 38.5 },
+    { state: 'Wisconsin', gas: 32.9 },
+    { state: 'Minnesota', gas: 32.7 },
+    { state: 'Iowa',      gas: 30.0 },
+    { state: 'Missouri',  gas: 30.0 },
+    { state: 'Kentucky',  gas: 26.4 },
+    { state: 'Nat. avg',  gas: 33.3, avg: true },
+  ];
+  const mwMax = 70;
+  const mwEl = document.getElementById('mw-bars');
+  mwData.forEach(d => {
+    const pct = (d.gas / mwMax * 100).toFixed(1);
+    const cls = d.il ? 'il' : (d.avg ? 'avg' : 'other');
+    const lbl = d.il ? 'highlight' : '';
+    mwEl.innerHTML += `
+      <div class="bar-row">
+        <span class="bar-label ${lbl}">${d.state}</span>
+        <div class="bar-wrap">
+          <div class="bar-fill ${cls}" style="width:${pct}%">${d.gas}¢</div>
+        </div>
+      </div>`;
+  });
+
+  /* ── Stack chart ── */
+  const stackData = [
+    { label: 'State motor fuel tax', val: 0.483, color: '#111111' },
+    { label: 'State sales tax (6.25%)', val: 0.1875, color: '#2B7A3A' },
+    { label: 'Federal excise tax', val: 0.183, color: '#3D9E50' },
+    { label: 'Chicago local tax', val: 0.08, color: '#6DC47E' },
+    { label: 'Cook County tax', val: 0.06, color: '#8FD19E' },
+    { label: 'Cook County sales tax', val: 0.052, color: '#B0DEBBA' },
+    { label: 'Chicago sales tax (1.25%)', val: 0.0375, color: '#C8EAD0' },
+    { label: 'State env. impact fee', val: 0.008, color: '#888888' },
+    { label: 'UST tax', val: 0.003, color: '#BBBBBB' },
+  ];
+  const stackColors = ['#111111','#2B7A3A','#3D9E50','#6DC47E','#8FD19E','#AADBB8','#C8EAD0','#888888','#CCCCCC'];
+  const total = stackData.reduce((s,d) => s + d.val, 0);
+  const stackEl = document.getElementById('stack-chart');
+  const legEl   = document.getElementById('stack-legend');
+  stackData.forEach((d, i) => {
+    const pct = (d.val / total * 100).toFixed(2);
+    const textColor = i < 3 ? '#FFFFFF' : '#111111';
+    stackEl.innerHTML += `
+      <div class="stack-seg" style="width:${pct}%; background:${stackColors[i]}; flex-shrink:0;">
+        <div class="tip">${d.label}<br><strong>${(d.val*100).toFixed(1)}¢</strong> (${parseFloat(pct).toFixed(1)}%)</div>
+      </div>`;
+    legEl.innerHTML += `
+      <span class="leg-item">
+        <span class="leg-dot" style="background:${stackColors[i]};"></span>
+        ${d.label} <span class="leg-val">&nbsp;${(d.val*100).toFixed(1)}¢</span>
+      </span>`;
+  });
+
+  /* ── National bars ── */
+  const natData = [
+    { state: 'California', val: 70.9 },
+    { state: 'Illinois',   val: 66.4, il: true },
+    { state: 'Washington', val: 59.0 },
+    { state: 'Pennsylvania', val: 58.7 },
+    { state: 'New Jersey', val: 49.1 },
+    { state: 'Indiana',    val: 53.5 },
+    { state: 'Michigan',   val: 53.4 },
+    { state: 'Maryland',   val: 46.2 },
+    { state: 'Rhode Island', val: 41.1 },
+    { state: 'N. Carolina', val: 41.2 },
+  ].sort((a,b) => b.val - a.val);
+
+  const natMax = 75;
+  const natEl = document.getElementById('nat-bars');
+  natData.forEach(d => {
+    const pct = (d.val / natMax * 100).toFixed(1);
+    const cls = d.il ? 'il' : 'other';
+    const lbl = d.il ? 'highlight' : '';
+    natEl.innerHTML += `
+      <div class="bar-row">
+        <span class="bar-label ${lbl}">${d.state}</span>
+        <div class="bar-wrap">
+          <div class="bar-fill ${cls}" style="width:${pct}%">${d.val}¢</div>
+        </div>
+      </div>`;
+  });
+
+  /* ── Tab switching ── */
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected','true');
+  }
+</script>
+
+</body>
+</html>
