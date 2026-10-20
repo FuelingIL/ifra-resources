@@ -334,23 +334,27 @@
   </div>
   <div class="ifra-header-text">
     <h1>Illinois Motor Fuel Tax Dashboard</h1>
-    <p>Illinois Fuel &amp; Retail Association · Rates effective July 2025 / January 2026</p>
+    <p>Illinois Fuel &amp; Retail Association · Rates effective July 1 – December 31, 2026</p>
   </div>
 </header>
 
 <main class="dashboard">
 
+  <div class="info-box" style="margin-bottom:20px;">
+    <strong>2026 rate update:</strong> Public Act 104-0468 (signed June 16, 2026) suspended the scheduled July 1, 2026 inflation adjustment, so the state motor fuel tax stays at 48.3¢/gal for gasoline and 55.8¢/gal for diesel through December 31, 2026. The prepaid sales tax on motor fuel rose to 21¢/gal on July 1, 2026. New rates take effect January 1, 2027. <a href="https://tax.illinois.gov/research/publications/bulletins/fy-2026-23.html" target="_blank" rel="noopener" style="color:var(--green-dark);font-weight:600;">IDOR bulletin</a>
+  </div>
+
   <!-- Metric Cards -->
   <div class="metrics-grid" role="region" aria-label="Key figures">
     <div class="metric-card">
       <p class="m-label">IL State Tax — Gasoline</p>
-      <p class="m-value">66.4¢</p>
-      <p class="m-sub">per gallon</p>
+      <p class="m-value">70.4¢</p>
+      <p class="m-sub">per gallon · 48.3¢ MFT + 21¢ prepaid sales tax + 1.1¢ UST/EIF</p>
     </div>
     <div class="metric-card">
       <p class="m-label">IL State Tax — Diesel</p>
-      <p class="m-value">73.9¢</p>
-      <p class="m-sub">per gallon</p>
+      <p class="m-value">77.9¢</p>
+      <p class="m-sub">per gallon · 55.8¢ MFT + 21¢ prepaid sales tax + 1.1¢ UST/EIF</p>
     </div>
     <div class="metric-card">
       <p class="m-label">All-in Chicago tax burden</p>
@@ -376,7 +380,7 @@
   <div id="tab-midwest" class="tab-panel active" role="tabpanel">
     <p class="section-label">State gasoline tax — total state rate (¢/gal), Midwest states</p>
     <div id="mw-bars"></div>
-    <p class="chart-note">Includes all state excise + fees + prepaid sales tax components. Federal excise of 18.4¢/gal applies equally to all states and is not shown here.</p>
+    <p class="chart-note">Includes all state excise + fees + prepaid sales tax components. Federal excise of 18.4¢/gal applies equally to all states and is not shown here. Illinois rate as of July 2026; other states as of January 2026.</p>
   </div>
 
   <!-- Tab: Stack -->
@@ -429,7 +433,7 @@
       </tbody>
     </table>
     <div class="info-box">
-      <strong>Prepaid sales tax rates (Jan–Jun 2026):</strong> 13¢/gal for mid-range ethanol blends · 15¢/gal for E15 · 17¢/gal for standard motor fuels
+      <strong>Prepaid sales tax rates (Jul–Dec 2026):</strong> 17¢/gal for mid-range ethanol blends · 19¢/gal for E15 · 21¢/gal for standard motor fuels
     </div>
   </div>
 
@@ -437,19 +441,19 @@
   <div id="tab-national" class="tab-panel" role="tabpanel">
     <p class="section-label">National ranking — top 10 highest state gasoline tax rates (¢/gal)</p>
     <div id="nat-bars"></div>
-    <p class="chart-note">Illinois ranks #2 nationally, behind California. The national average is 33.3¢/gal — Illinois is nearly double that. Among Midwest states, Illinois is the highest by a margin of more than 12¢/gal over the next closest state.</p>
+    <p class="chart-note">Illinois ranks #2 nationally, behind California (other states as of January 2026). The national average is 33.3¢/gal — Illinois is nearly double that. Among Midwest states, Illinois is the highest by a margin of more than 12¢/gal over the next closest state.</p>
   </div>
 
 </main>
 
 <footer class="ifra-footer">
-  <span>Illinois Fuel &amp; Retail Association</span> &nbsp;·&nbsp; Source: IFRA / EIA / IRS · Rates as of January 2026 &nbsp;·&nbsp; For informational purposes only
+  <span>Illinois Fuel &amp; Retail Association</span> &nbsp;·&nbsp; Source: IFRA / IDOR / EIA / IRS · Illinois rates as of July 2026 &nbsp;·&nbsp; For informational purposes only
 </footer>
 
 <script>
   /* ── Midwest bars ── */
   const mwData = [
-    { state: 'Illinois',  gas: 66.4, il: true },
+    { state: 'Illinois',  gas: 70.4, il: true },
     { state: 'Indiana',   gas: 53.5 },
     { state: 'Michigan',  gas: 53.4 },
     { state: 'Ohio',      gas: 38.5 },
@@ -460,7 +464,7 @@
     { state: 'Kentucky',  gas: 26.4 },
     { state: 'Nat. avg',  gas: 33.3, avg: true },
   ];
-  const mwMax = 70;
+  const mwMax = 75;
   const mwEl = document.getElementById('mw-bars');
   mwData.forEach(d => {
     const pct = (d.gas / mwMax * 100).toFixed(1);
@@ -508,7 +512,7 @@
   /* ── National bars ── */
   const natData = [
     { state: 'California', val: 70.9 },
-    { state: 'Illinois',   val: 66.4, il: true },
+    { state: 'Illinois',   val: 70.4, il: true },
     { state: 'Washington', val: 59.0 },
     { state: 'Pennsylvania', val: 58.7 },
     { state: 'New Jersey', val: 49.1 },
